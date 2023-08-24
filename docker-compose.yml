@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  # logger-service: a service to store logs
+  logger-service:
+    build:
+      context: .
+      dockerfile: ./logger-service.dockerfile
+    restart: always
+    ports:
+      - "8082:80"
+    deploy:
+      mode: replicated
+      replicas: 1
+    volumes:
+      - ./logger-service/templates/:/app/templates
+
+  # mongo: start MongoDB and ensure that data is stored to a mounted volume
+  mongo:
+    image: "mongo:4.2.17-bionic"
+    ports:
+      - "27017:27017"
+    #    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      MONGO_INITDB_DATABASE: logs
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./db-data/mongo/:/data/db
