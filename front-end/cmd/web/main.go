@@ -15,8 +15,8 @@ func main() {
 	})
 
 	// start the web server
-	fmt.Println("Starting front end service on port 80")
-	err := http.ListenAndServe(":80", nil)
+	fmt.Println("Starting front end service on port 3000")
+	err := http.ListenAndServe(":3000", nil)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -29,9 +29,9 @@ var templateFS embed.FS
 func render(w http.ResponseWriter, t string) {
 	// all the required templates for any page
 	partials := []string{
-		"templates/base.layout.gohtml",
-		"templates/header.partial.gohtml",
-		"templates/footer.partial.gohtml",
+		"./templates/base.layout.gohtml",
+		"./templates/header.partial.gohtml",
+		"./templates/footer.partial.gohtml",
 	}
 
 	// append the template we received as a parameter
