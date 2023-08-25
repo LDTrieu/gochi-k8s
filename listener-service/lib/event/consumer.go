@@ -1,8 +1,12 @@
 package event
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
+	"net/http"
+	"net/rpc"
 
 	amqp "github.com/rabbitmq/amqp091-go"
 )
@@ -86,7 +90,83 @@ func (consumer *Consumer) Listen(topics []string) error {
 	<-forever
 	return nil
 }
-
 func handlePayload(payload Payload) {
+	// logic to process payload goes in here
+	switch payload.Name {
+	case "broker_hit":
+		// just a test to make sure everything works
+		res, err := rpcPushToLogger("LogInfo", payload)
+		if err != nil {
+			log.Println(err)
+		}
+		fmt.Println("Response from RPC:", res)
 
+	case "auth", "authentication":
+
+		err := authenticate(payload)
+		if err != nil {
+			log.Println(err)
+		}
+
+	// to connect to a given microservice
+
+	default:
+
+		res, err := rpcPushToLogger("LogInfo", payload)
+		if err != nil {
+			log.Println(err)
+		}
+		fmt.Println("Response from RPC:", res)
+	}
+}
+
+// it gets stored into a mongo database
+func rpcPushToLogger(function string, data any) (string,
+	error) {
+	c, err := rpc.Dial("tcp", "logger-service:5001")
+	if err != nil {
+		log.Println(err)
+		return "", err
+	}
+
+	fmt.Println("Connected via rpc...")
+	var result string
+	err = c.Call("RPCServer."+function, data, &result)
+	if err != nil {
+		return "", err
+	}
+
+	return result, nil
+}
+
+func authenticate(payload Payload) error {
+	// TODO actually authenticate via JSON
+	log.Printf("Got payload of %v", payload)
+	return nil
+}
+func logEvent(entry Payload) error {
+	jsonData, _ := json.MarshalIndent(entry, "", "\t")
+
+	logServiceURL := "http://logger-service/log"
+
+	request, err := http.NewRequest("POST",
+		logServiceURL, bytes.NewBuffer(jsonData))
+	if err != nil {
+		return err
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+	client := &http.Client{}
+
+	response, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+	defer response.Body.Close()
+
+	if response.StatusCode != http.StatusAccepted {
+		return err
+	}
+
+	return nil
 }
