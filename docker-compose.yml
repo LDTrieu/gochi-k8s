@@ -16,17 +16,27 @@ services:
   #     - ./logger-service/templates/:/app/templates
 
   # mongo: start MongoDB and ensure that data is stored to a mounted volume
-  mongo:
-    image: "mongo:4.2.17-bionic"
+  # mongo:
+  #   image: "mongo:4.2.17-bionic"
+  #   ports:
+  #     - "27017:27017"
+  #   #    restart: always
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #   environment:
+  #     MONGO_INITDB_DATABASE: logs
+  #     MONGO_INITDB_ROOT_USERNAME: admin
+  #     MONGO_INITDB_ROOT_PASSWORD: password
+  #   volumes:
+  #     - ./db-data/mongo/:/data/
+  broker-service:
+    build:
+      context: .
+      dockerfile: ./broker-service.dockerfile
+    restart: always
     ports:
-      - "27017:27017"
-    #    restart: always
+      - "8080:3000"
     deploy:
       mode: replicated
       replicas: 1
-    environment:
-      MONGO_INITDB_DATABASE: logs
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password
-    volumes:
-      - ./db-data/mongo/:/data/db
