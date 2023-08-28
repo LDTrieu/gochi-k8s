@@ -1,5 +1,6 @@
 
 LOGGER_BINARY=logServiceApp
+## BROKER_BINARY=brokerServiceApp
 LOGGER_VERSION=1.0.0
 
 up:
@@ -8,7 +9,9 @@ up:
 	@echo "Docker images started!"
 
 down:
-	ls
+	@echo "Stopping docker compose..."
+	docker-compose down -d 
+	@echo "Done"
 
 ## build_listener: builds the listener binary as a linux executable
 build_listener:
@@ -31,3 +34,10 @@ logger: build_logger
 	docker-compose up --build -d logger-service
 	docker-compose start logger-service
 	@echo "broker-service rebuilt and started!"
+
+up_build:
+	@echo "Stopping dcker images.."
+	docker-compose down 
+	@echo " Building and starting docker images..."
+	docker-compose up --build -d 
+	@echo "Docker images built and started"

@@ -24,7 +24,7 @@ func (app *Config) routes() http.Handler {
 	// a heartbeat route, to ensure things are up
 	mux.Use(middleware.Heartbeat("/ping"))
 
-	mux.Post("/", app.Broker)
+	//mux.Post("/", app.Broker)
 
 	return mux
 }
