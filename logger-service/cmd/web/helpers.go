@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"log-service/data"
+
 	"net/http"
 	"runtime/debug"
 	"time"

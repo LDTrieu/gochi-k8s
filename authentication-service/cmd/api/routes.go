@@ -13,7 +13,7 @@ func (app *Config) routes() http.Handler {
 
 	// specify who is allowed to connect to our API service
 	mux.Use(cors.Handler(cors.Options{
-		AllowedOrigins:   []string{"https://*", "http://*"},
+		AllowedOrigins:   []string{"*"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		ExposedHeaders:   []string{"Link"},
@@ -21,20 +21,9 @@ func (app *Config) routes() http.Handler {
 		MaxAge:           300,
 	}))
 
-	// a heartbeat route, to ensure things are up
 	mux.Use(middleware.Heartbeat("/ping"))
 
-	// this route is just to ensure things work, and is never
-	// used after that
-	//mux.Get("/", app.Broker)
-
-	mux.Post("/", app.Broker)
-
-	// // grpc route
-	// mux.Post("/log-grpc", app.LogViaGRPC)
-
-	// // a route for everything
-	mux.Post("/handle", app.HandleSubmission)
+	//mux.Post("/authenticate", app.Authenticate)
 
 	return mux
 }
