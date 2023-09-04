@@ -29,9 +29,9 @@ var templateFS embed.FS
 func render(w http.ResponseWriter, t string) {
 	// all the required templates for any page
 	partials := []string{
-		"./templates/base.layout.gohtml",
-		"./templates/header.partial.gohtml",
-		"./templates/footer.partial.gohtml",
+		"templates/base.layout.gohtml",
+		"templates/header.partial.gohtml",
+		"templates/footer.partial.gohtml",
 	}
 
 	// append the template we received as a parameter

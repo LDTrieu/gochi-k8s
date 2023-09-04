@@ -1,19 +1,52 @@
 version: "3"
 
 services:
-  # logger-service: a service to store logs
+  # broker-service - main entry point; we call this from the front end
+  broker-service:
+    build:
+      context: .
+      dockerfile: ./broker-service.dockerfile
+    restart: always
+    ports:
+      - "8080:3000"
+    deploy:
+      mode: replicated
+      replicas: 1
+    # environment:
+    #   RABBIT_URL: "amqp://guest:guest@rabbitmq"
+
+  # # logger-service: a service to store logs
   logger-service:
     build:
       context: .
       dockerfile: ./logger-service.dockerfile
     restart: always
     ports:
-      - "8082:80"
+      - "8082:3000"
     deploy:
       mode: replicated
       replicas: 1
     volumes:
       - ./logger-service/templates/:/app/templates
+
+  # mail-service: a service to send mail
+  mail-service:
+    build:
+      context: .
+      dockerfile: ./mail-service.dockerfile
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      MAIL_DOMAIN: localhost
+      MAIL_HOST: mailhog
+      MAIL_PORT: 1025
+      MAIL_ENCRYPTION: none
+      MAIL_USERNAME: ""
+      MAIL_PASSWORD: ""
+      FROM_NAME: "John Smith"
+      FROM_ADDRESS: john.smith@example.com
 
   # authentication-service: a service to authen
   authentication-service:
@@ -22,7 +55,7 @@ services:
       dockerfile: ./authentication-service.dockerfile
     restart: always
     ports:
-      - "8081:80"
+      - "8081:3000"
     deploy:
       mode: replicated
       replicas: 1
@@ -45,17 +78,22 @@ services:
     volumes:
       - ./db-data/mongo/:/data/db
 
-  postgres:
-    image: "postgres:14.2"
+  # postgres:
+  #   image: "postgres:14.2"
+  #   ports:
+  #     - "5432:5432"
+  #   restart: always
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 1
+  #   environment:
+  #     POSTGRES_USER: postgres
+  #     POSTGRES_PASSWORD: password
+  #     POSTGRES_DB: users
+  #   volumes:
+  #     - ./db-data/postgres/:/var/lib/postgresql/data/
+  mailhog:
+    image: "mailhog/mailhog:latest"
     ports:
-      - "5432:5432"
-    restart: always
-    deploy:
-      mode: replicated
-      replicas: 1
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: users
-    volumes:
-      - ./db-data/postgres/:/var/lib/postgresql/data/
+      - "1025:1025"
+      - "8025:8025"
