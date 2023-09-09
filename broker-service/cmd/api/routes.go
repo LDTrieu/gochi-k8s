@@ -3,8 +3,8 @@ package main
 import (
 	"net/http"
 
-	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 )
 
@@ -26,7 +26,7 @@ func (app *Config) routes() http.Handler {
 
 	// this route is just to ensure things work, and is never
 	// used after that
-	//mux.Get("/", app.Broker)
+	mux.Get("/", app.Broker)
 
 	mux.Post("/", app.Broker)
 

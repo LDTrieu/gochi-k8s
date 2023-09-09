@@ -1,7 +1,7 @@
 FROM alpine:latest
 RUN mkdir /app
 
-COPY authentication-service/authApp /app
+COPY authentication-service/authServiceApp /app
 
 # Run the server executable
-CMD [ "/app/authApp" ]
+CMD [ "/app/authServiceApp" ]

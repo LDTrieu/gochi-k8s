@@ -9,24 +9,23 @@ import (
 	"time"
 
 	amqp "github.com/rabbitmq/amqp091-go"
-	"go.etcd.io/etcd/clientv3"
 )
 
-const webPort = "3000"
+const webPort = "80"
 
 type Config struct {
 	Rabbit *amqp.Connection
-	Etcd   *clientv3.Client
+	//Etcd   *clientv3.Client
 }
 
 func main() {
 
 	rabbitConn, err := connectToRabbit()
 	if err != nil {
-		type Config struct {
-			Rabbit *amqp.Connection
-			Etcd   *clientv3.Client
-		}
+		// type Config struct {
+		// 	Rabbit *amqp.Connection
+		// 	//Etcd   *clientv3.Client
+		// }
 
 		fmt.Println(err)
 		os.Exit(1)
@@ -52,12 +51,13 @@ func main() {
 func connectToRabbit() (*amqp.Connection, error) {
 	var rabbitConn *amqp.Connection
 	var counts int64
-	rabbitURL := os.Getenv("RABBIT_URL")
+	//rabbitURL := os.Getenv("RABBIT_URL")
 
 	//log.Fatal("rabbitURL: ", rabbitURL)
 
 	for {
-		connection, err := amqp.Dial(rabbitURL)
+		//connection, err := amqp.Dial(rabbitURL)
+		connection, err := amqp.Dial("amqp://guest:guest@rabbitmq")
 		if err != nil {
 			fmt.Println("rabbitmq not ready...")
 			counts++
