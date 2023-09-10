@@ -23,6 +23,9 @@ func (app *Config) routes() http.Handler {
 
 	// a heartbeat route, to ensure things are up
 	mux.Use(middleware.Heartbeat("/ping"))
+	mux.Get("/check", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("check_exist"))
+	})
 
 	// this route is just to ensure things work, and is never
 	// used after that
