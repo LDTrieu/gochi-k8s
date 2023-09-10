@@ -10,8 +10,6 @@ import (
 
 func (app *Config) routes() http.Handler {
 	mux := chi.NewRouter()
-	mux.Use(middleware.Heartbeat("/ping"))
-
 	// specify who is allowed to connect to our API service
 	mux.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"http://*", "https://*"},
@@ -21,8 +19,12 @@ func (app *Config) routes() http.Handler {
 		AllowCredentials: true,
 		MaxAge:           300,
 	}))
+	mux.Use(middleware.Heartbeat("/ping"))
 
 	//mux.Post("/send", app.SendMail)
+	mux.Get("/check", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("check_exist"))
+	})
 
 	return mux
 }

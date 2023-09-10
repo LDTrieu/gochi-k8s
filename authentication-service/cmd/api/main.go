@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"time"
 
 	_ "github.com/jackc/pgconn"
@@ -14,7 +13,7 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 )
 
-const webPort = "3000"
+const webPort = "80"
 
 var counts int64
 
@@ -37,7 +36,6 @@ func main() {
 		Models: data.New(conn),
 	}
 
-	log.Println("BBB")
 	// define the http server
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%s", webPort),
@@ -68,8 +66,8 @@ func openDB(dsn string) (*sql.DB, error) {
 
 func connectToDB() *sql.DB {
 	// connect to postgres
-	dsn := os.Getenv("DSN")
-
+	//dsn := os.Getenv("DSN")
+	dsn := "host=localhost port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
 	for {
 		connection, err := openDB(dsn)
 		if err != nil {

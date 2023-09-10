@@ -60,10 +60,14 @@ func main() {
 	}
 	app.serve()
 
-	// go app.gRPCListen()
+	go app.gRPCListen()
 	log.Println("LOGGER_SERVICE----- END")
 
 }
+
+// func (app *Config) rpcListen() error {
+
+// }
 
 // serve starts the web server.
 func (app *Config) serve() {
@@ -123,9 +127,8 @@ func (app *Config) webRouter() http.Handler {
 	//mux.Get("login", app.LoginPage)
 	//mux.Post("/login", app.LoginPagePost)
 	//mux.Get("logout", app.LogoutPage)
-	mux.Get("/panic", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("{panic: PANIC}"))
-		log.Println("PANIC")
+	mux.Get("/check", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("check_exist"))
 	})
 	// mux.Route("/admin", func(mux chi.Router) {
 	// 	mux.Use(app.Auth)
