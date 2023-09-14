@@ -1,0 +1,63 @@
+version: "3"
+
+services:
+  # # mongo: start MongoDB and ensure that data is stored to a mounted volume
+  mongo:
+    image: "mongo:4.2.17-bionic"
+    ports:
+      - "27017:27017"
+    #    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      MONGO_INITDB_DATABASE: logs
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password
+    volumes:
+      - ./db-data/mongo/:/data/db
+
+  postgres:
+    image: "postgres:14.2"
+    ports:
+      - "5432:5432"
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: users
+    volumes:
+      - ./db-data/postgres/:/var/lib/postgresql/data/
+
+  mailhog:
+    image: "mailhog/mailhog:latest"
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
+  # rabbitmq
+  rabbitmq:
+    image: "rabbitmq:3-management"
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: username
+      RABBITMQ_DEFAULT_PASS: password
+
+  # rabbitmq-manager
+  rabbitmq-manager:
+    image: "rabbitmq:3-management"
+    container_name: rabbitmq-manager
+    ports:
+      - "8081:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: username
+      RABBITMQ_DEFAULT_PASS: password
+      RABBITMQ_MANAGEMENT_HTTP_LISTEN_PORT: 15672
+    depends_on:
+      - rabbitmq

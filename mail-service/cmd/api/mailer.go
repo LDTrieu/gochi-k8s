@@ -94,8 +94,8 @@ func (m *Mail) SendSMTPMessage(msg Message) error {
 
 // buildHTMLMessage creates the html version of the message
 func (m *Mail) buildHTMLMessage(msg Message) (string, error) {
-	templateToRender := "./templates/mail.html.tmpl"
 
+	templateToRender := "./templates/mail.html.tmpl"
 	t, err := template.New("email-html").ParseFiles(templateToRender)
 	if err != nil {
 		return "", err

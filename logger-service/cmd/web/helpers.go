@@ -1,13 +1,19 @@
 package main
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
+	"log"
+	"log-service/data"
 	"net/http"
+	"runtime/debug"
+	"time"
 )
 
-// const randomStringSource = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0987654321_+"
+const randomStringSource = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0987654321_+"
 
 type jsonResponse struct {
 	Error   bool   `json:"error"`
@@ -73,42 +79,42 @@ func (app *Config) errorJSON(w http.ResponseWriter, err error, status ...int) er
 	return app.writeJSON(w, statusCode, payload)
 }
 
-// // isAuthenticated checks to see if a user is authenticated by looking for userID in session
-// func (app *Config) isAuthenticated(r *http.Request) bool {
-// 	exists := app.Session.Exists(r.Context(), "userID")
-// 	return exists
-// }
+// isAuthenticated checks to see if a user is authenticated by looking for userID in session
+func (app *Config) isAuthenticated(r *http.Request) bool {
+	exists := app.Session.Exists(r.Context(), "userID")
+	return exists
+}
 
-// // clientError just fires back a client error when something goes wrong (bad request)
-// func (app *Config) clientError(w http.ResponseWriter, status int) {
-// 	log.Println("Client error with status of", status)
-// 	http.Error(w, http.StatusText(status), status)
-// }
+// clientError just fires back a client error when something goes wrong (bad request)
+func (app *Config) clientError(w http.ResponseWriter, status int) {
+	log.Println("Client error with status of", status)
+	http.Error(w, http.StatusText(status), status)
+}
 
-// // serverError just fires back error 500 when something goes wrong
-// func (app *Config) serverError(w http.ResponseWriter, err error) {
-// 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
-// 	log.Println(trace)
-// 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-// }
+// serverError just fires back error 500 when something goes wrong
+func (app *Config) serverError(w http.ResponseWriter, err error) {
+	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
+	log.Println(trace)
+	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+}
 
-// // logEvent saves an event to the logs collection in Mongo
-// func (app *Config) logEvent(name, content string) error {
-// 	event := data.LogEntry{
-// 		Name:      name,
-// 		Data:      content,
-// 		CreatedAt: time.Now(),
-// 	}
-// 	return app.Models.LogEntry.Insert(event)
-// }
+// logEvent saves an event to the logs collection in Mongo
+func (app *Config) logEvent(name, content string) error {
+	event := data.LogEntry{
+		Name:      name,
+		Data:      content,
+		CreatedAt: time.Now(),
+	}
+	return app.Models.LogEntry.Insert(event)
+}
 
-// // randomString returns a random string of letters of length n
-// func (app *Config) randomString(n int) string {
-// 	s, r := make([]rune, n), []rune(randomStringSource)
-// 	for i := range s {
-// 		p, _ := rand.Prime(rand.Reader, len(r))
-// 		x, y := p.Uint64(), uint64(len(r))
-// 		s[i] = r[x%y]
-// 	}
-// 	return string(s)
-// }
+// randomString returns a random string of letters of length n
+func (app *Config) randomString(n int) string {
+	s, r := make([]rune, n), []rune(randomStringSource)
+	for i := range s {
+		p, _ := rand.Prime(rand.Reader, len(r))
+		x, y := p.Uint64(), uint64(len(r))
+		s[i] = r[x%y]
+	}
+	return string(s)
+}

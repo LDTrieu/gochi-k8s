@@ -78,6 +78,7 @@ func TestInsert(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+
 	newUser2, err := models.User.GetByEmail(newUser1.Email)
 	if err != nil {
 		t.Error(err)
