@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"net/rpc"
 )
@@ -54,12 +55,14 @@ func (app *Config) HandleSubmission(w http.ResponseWriter, r *http.Request) {
 	}
 	switch requestPayload.Action {
 	case "auth":
-		//	log.Println("auth")
 		app.authenticate(w, requestPayload.Auth)
 		// case "log":
 		// 	app.logEventViarabbit(w, requestPayload.Log)
+	// case "log":
+	// 	app.logItemViaRPC(w, requestPayload.Log)
 	case "log":
-		app.logItemViaRPC(w, requestPayload.Log)
+		log.Println("LOG")
+		app.logItem(w, requestPayload.Log)
 	case "mail":
 		app.sendMail(w, requestPayload.Mail)
 	default:
@@ -73,25 +76,29 @@ func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 	jsonData, _ := json.MarshalIndent(a, "", "\t")
 
 	// call the service
-	//request, err := http.NewRequest("POST", "http://authentication-service/authenticate", bytes.NewBuffer(jsonData))
+	//request, err := http.NewRequest("POST", "http://localhost:8080/authenticate", bytes.NewBuffer(jsonData))
 	request, err := http.NewRequest("POST", "http://authentication-service/authenticate", bytes.NewBuffer(jsonData))
 	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
+
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
+
 	defer response.Body.Close()
 
 	// make sure we get back the correct status code
 	if response.StatusCode == http.StatusUnauthorized {
+
 		app.errorJSON(w, errors.New("invalid creadentials"))
 		return
 	} else if response.StatusCode != http.StatusAccepted {
+
 		app.errorJSON(w, errors.New("error calling auth service"))
 		return
 	}
@@ -102,15 +109,18 @@ func (app *Config) authenticate(w http.ResponseWriter, a AuthPayload) {
 
 	// decode the json from the auth service
 
-	err = json.NewDecoder(request.Body).Decode(&jsonFromService)
+	err = json.NewDecoder(response.Body).Decode(&jsonFromService)
 	if err != nil {
+
 		app.errorJSON(w, err)
 		return
 	}
+
 	if jsonFromService.Error {
 		app.errorJSON(w, err, http.StatusUnauthorized)
 		return
 	}
+
 	var payload jsonResponse
 	payload.Error = false
 	payload.Message = "Authenticated!"
@@ -128,21 +138,26 @@ func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
 	// now post to the mail service
 	request, err := http.NewRequest("POST", mailServiceURL, bytes.NewBuffer(jsonData))
 	if err != nil {
+
 		app.errorJSON(w, err)
 		return
 	}
+
 	request.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
+
 		_ = app.errorJSON(w, err, http.StatusBadRequest)
 		return
 	}
+
 	defer response.Body.Close()
 
 	// make sure we get back the right status code
 	if response.StatusCode != http.StatusAccepted {
+
 		_ = app.errorJSON(w, errors.New("error calling mail service"), http.StatusBadRequest)
 		return
 	}
@@ -152,31 +167,36 @@ func (app *Config) sendMail(w http.ResponseWriter, msg MailPayload) {
 	payload.Error = false
 	payload.Message = "Message sent to " + msg.To
 
-	app.writeJSON(w, http.StatusAccepted, payload)
-	// out, _ := json.MarshalIndent(payload, "", "\t")
-	// w.Header().Set("Content-Type", "application/json")
-	// w.WriteHeader(http.StatusAccepted)
-	// _, _ = w.Write(out)
+	// app.writeJSON(w, http.StatusAccepted, payload)
+	out, _ := json.MarshalIndent(payload, "", "\t")
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted)
+
+	_, _ = w.Write(out)
 
 }
 
-func (app *Config) logItem(w http.ResponseWriter, entry LogPayload) {
-	jsonData, _ := json.MarshalIndent(entry, "", "\t")
-	logServiceURL := "http://logger-service/log"
+func (app *Config) logItem(w http.ResponseWriter, l LogPayload) {
+	jsonData, _ := json.MarshalIndent(l, "", "\t")
+	logServiceURL := "http://logger-service/api/log"
 	request, err := http.NewRequest("POST", logServiceURL, bytes.NewBuffer(jsonData))
 	if err != nil {
 		app.errorJSON(w, err)
 		return
 	}
+	log.Println("request.....1")
 	request.Header.Set("Content-Type", "application/json")
 	client := &http.Client{}
 	response, err := client.Do(request)
 	if err != nil {
+		log.Println("request.....2", err)
 		app.errorJSON(w, err)
 		return
 	}
+	log.Println("request.....3", err)
 	defer response.Body.Close()
 	if response.StatusCode != http.StatusAccepted {
+		log.Println("request.....3.1", err)
 		app.errorJSON(w, err)
 		return
 	}
@@ -185,6 +205,7 @@ func (app *Config) logItem(w http.ResponseWriter, entry LogPayload) {
 	payload.Error = false
 
 	payload.Message = "logged"
+	log.Println("request.....4", err)
 	app.writeJSON(w, http.StatusAccepted, payload)
 }
 

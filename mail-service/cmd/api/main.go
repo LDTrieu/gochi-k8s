@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-const webPort = "3000"
+const webPort = "80"
 
 // Config is the application Config, shared with functions by using it as a receiver
 type Config struct {

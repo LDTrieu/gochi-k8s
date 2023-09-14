@@ -21,9 +21,9 @@ func (app *Config) routes() http.Handler {
 	}))
 	mux.Use(middleware.Heartbeat("/ping"))
 
-	//mux.Post("/send", app.SendMail)
+	mux.Post("/send", app.SendMail)
 	mux.Get("/check", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("check_exist"))
+		w.Write([]byte("mail_exist"))
 	})
 
 	return mux

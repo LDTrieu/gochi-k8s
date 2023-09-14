@@ -1,5 +1,5 @@
 CREATE TABLE public.users (
-    id integer DEFAULT nextval('public.user_id_seq'::regclass) NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     email character varying(255),
     first_name character varying(255),
     last_name character varying(255),

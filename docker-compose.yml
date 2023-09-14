@@ -8,12 +8,12 @@ services:
       dockerfile: ./broker-service.dockerfile
     restart: always
     ports:
-      - "8080:3000"
+      - "8080:80"
     deploy:
       mode: replicated
       replicas: 1
     environment:
-      RABBIT_URL: "amqp://guest:guest@rabbitmq"
+      RABBIT_URL: "amqp://username:password@rabbitmq:5672"
 
   # listener-service - watches rabbitmq for messages
   listener-service:
@@ -24,7 +24,7 @@ services:
       mode: replicated
       replicas: 1
     environment:
-      RABBIT_URL: "amqp://guest:guest@rabbitmq"
+      RABBIT_URL: "amqp://username:password@rabbitmq:5672"
 
   # logger-service: a service to store logs
   logger-service:
@@ -33,7 +33,7 @@ services:
       dockerfile: ./logger-service.dockerfile
     restart: always
     ports:
-      - "8081:3000"
+      - "8084:80"
     deploy:
       mode: replicated
       replicas: 1
@@ -46,6 +46,8 @@ services:
       context: .
       dockerfile: ./mail-service.dockerfile
     restart: always
+    ports:
+      - "8083:80"
     deploy:
       mode: replicated
       replicas: 1
@@ -71,51 +73,4 @@ services:
       mode: replicated
       replicas: 1
     environment:
-      DSN: "host=localhost port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"
-
-  # # mongo: start MongoDB and ensure that data is stored to a mounted volume
-  mongo:
-    image: "mongo:4.2.17-bionic"
-    ports:
-      - "27017:27017"
-    #    restart: always
-    deploy:
-      mode: replicated
-      replicas: 1
-    environment:
-      MONGO_INITDB_DATABASE: logs
-      MONGO_INITDB_ROOT_USERNAME: admin
-      MONGO_INITDB_ROOT_PASSWORD: password
-    volumes:
-      - ./db-data/mongo/:/data/db
-
-  postgres:
-    image: "postgres:14.2"
-    ports:
-      - "5432:5432"
-    restart: always
-    deploy:
-      mode: replicated
-      replicas: 1
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: users
-    volumes:
-      - ./db-data/postgres/:/var/lib/postgresql/data/
-
-  mailhog:
-    image: "mailhog/mailhog:latest"
-    ports:
-      - "1025:1025"
-      - "8025:8025"
-
-  rabbitmq:
-    image: "rabbitmq:3.9-alpine"
-    ports:
-      - "5672:5672"
-    deploy:
-      mode: replicated
-      replicas: 1
-    volumes:
-      - /.db-data/rabbitmq/:/var/lib/rabbitmq/
+      DSN: "host=postgres port=5432 user=postgres password=password dbname=users sslmode=disable timezone=UTC connect_timeout=5"

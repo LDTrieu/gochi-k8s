@@ -24,7 +24,19 @@ down:
 	docker-compose down
 	@echo "Docker stopped!"
 
+## build core
+build_core:  
+	@echo "Building core docker images..."
+	docker-compose -f docker-compose-core.yml
+	@echo "Staring core docker images..."
+	docker-compose -f docker-compose-core.yml up -d
 
+build_service: build_broker build_auth build_mail build_logger build_listener
+	@echo "Building service docker images..."
+	docker-compose -f docker-compose.yml build --no-cache
+	@echo "Staring service docker images..."
+	docker-compose -f docker-compose.yml up -d
+	
 ## up_build stop docker-compose, builds all services and starts docker compose
 up_build: build_auth build_broker build_listener  build_logger build_mail
 	@echo "Stopping docker images (if running...)"
@@ -82,7 +94,7 @@ listener: build_listener
 	docker-compose start listener-service
 	@echo "listener-service rebuilt and started!"
 
-run_rabbitmq-management:
+run_rabbitmqmanagement:
 	docker build --tag ${RABBITMQ_BINARY} .
 	
 run_auth:
@@ -104,4 +116,6 @@ run_logger:
 run_mail:
 	@$(MAKE) -C mail-service/ run
 	@echo "Running mail-service..."
-	
+
+prune:
+	docker system prune -all

@@ -14,14 +14,14 @@ func (app *Config) SendMail(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var requestPayload mailMessage
-
+	log.Println("email...1")
 	err := app.readJSON(w, r, &requestPayload)
 	if err != nil {
-		log.Println(err)
+		log.Println("email...1.1", err)
 		_ = app.errorJSON(w, err)
 		return
 	}
-
+	log.Println("email...2")
 	msg := Message{
 		From:    requestPayload.From,
 		To:      requestPayload.To,
@@ -31,7 +31,7 @@ func (app *Config) SendMail(w http.ResponseWriter, r *http.Request) {
 
 	err = app.Mailer.SendSMTPMessage(msg)
 	if err != nil {
-		log.Println(err)
+		log.Println("email...2.1", err)
 		_ = app.errorJSON(w, err)
 		return
 	}
@@ -40,6 +40,6 @@ func (app *Config) SendMail(w http.ResponseWriter, r *http.Request) {
 		Error:   false,
 		Message: "sent to " + requestPayload.To,
 	}
-
+	log.Println("email...3", payload)
 	_ = app.writeJSON(w, http.StatusAccepted, payload)
 }
